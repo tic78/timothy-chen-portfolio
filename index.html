@@ -217,16 +217,67 @@
       line-height: 1.55;
     }
 
-    .viewer {
-      width: 100%;
-      min-height: 78vh;
-      border: 0;
+    .viewer-frame {
+      padding: 1rem;
       border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 237, 228, 0.92));
+      border: 1px solid rgba(23, 38, 29, 0.08);
+    }
+
+    .viewer-status {
+      display: inline-flex;
+      align-items: center;
+      margin: 0 0 1rem;
+      padding: 0.55rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(30, 90, 67, 0.1);
+      color: var(--accent-strong);
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .viewer-status[data-state="error"] {
+      background: rgba(188, 90, 54, 0.12);
+      color: #9f4627;
+    }
+
+    .pdf-pages {
+      display: grid;
+      gap: 1.1rem;
+      justify-items: center;
+    }
+
+    .pdf-page {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid rgba(23, 38, 29, 0.08);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 12px 30px rgba(41, 30, 15, 0.08);
+    }
+
+    .pdf-page-label {
+      margin-bottom: 0.7rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .pdf-page canvas {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 14px;
       background: #ffffff;
     }
 
-    .fallback {
-      padding: 2rem;
+    .viewer-fallback {
+      padding: 1rem 0.25rem 0.25rem;
       line-height: 1.7;
     }
 
@@ -248,9 +299,6 @@
         align-items: start;
       }
 
-      .viewer {
-        min-height: 68vh;
-      }
     }
 
     @media (max-width: 600px) {
@@ -268,8 +316,8 @@
         padding: 1.4rem;
       }
 
-      .viewer {
-        min-height: 56vh;
+      .viewer-frame {
+        padding: 0.7rem;
       }
     }
   </style>
@@ -282,7 +330,7 @@
         <h1 id="site-title">Timothy<br>Chen</h1>
         <p class="lead">
           A focused portfolio page built to make Timothy Chen's professional background easy to
-          review. The complete PDF is embedded below for quick scanning, with direct open and
+          review. The complete PDF is rendered below as full inline pages, with direct open and
           download options for recruiters, hiring managers, and collaborators.
         </p>
         <div class="actions">
@@ -300,8 +348,8 @@
       <div class="info-grid" aria-label="Portfolio details">
         <article class="info-card">
           <span>Format</span>
-          <strong>Embedded PDF Experience</strong>
-          <p>The portfolio is readable directly on the page while still being easy to open in a new tab.</p>
+          <strong>Full Inline PDF Viewer</strong>
+          <p>Every page is shown directly on the site so visitors do not need to expand a hidden page stack.</p>
         </article>
         <article class="info-card">
           <span>Purpose</span>
@@ -323,28 +371,163 @@
           <h2 id="portfolio-title">Timothy-Chen-Portfolio.pdf</h2>
         </div>
         <p class="viewer-note">
-          If the embedded preview is unavailable in your browser, use the Open PDF or Download PDF buttons above.
+          The full document is rendered directly into the page. If loading fails, the PDF can still be opened or downloaded above.
         </p>
       </div>
 
-      <object
-        class="viewer"
-        data="./assets/Timothy-Chen-Portfolio.pdf#view=FitH"
-        type="application/pdf"
-        aria-label="Timothy Chen portfolio PDF"
-      >
-        <div class="fallback">
-          <p>The PDF preview is not available in this browser.</p>
+      <div class="viewer-frame" id="pdf-renderer">
+        <p class="viewer-status" id="pdf-status">Loading full portfolio...</p>
+        <div class="pdf-pages" id="pdf-pages" aria-live="polite"></div>
+        <div class="viewer-fallback" id="pdf-fallback" hidden>
+          <p>The inline preview could not be rendered in this browser.</p>
           <p>
             <a href="./assets/Timothy-Chen-Portfolio.pdf" target="_blank" rel="noreferrer">
               Open the portfolio PDF in a new tab
             </a>
           </p>
         </div>
-      </object>
+        <noscript>
+          <div class="viewer-fallback">
+            <p>This page needs JavaScript to render every PDF page inline.</p>
+            <p>
+              <a href="./assets/Timothy-Chen-Portfolio.pdf" target="_blank" rel="noreferrer">
+                Open the portfolio PDF in a new tab
+              </a>
+            </p>
+          </div>
+        </noscript>
+      </div>
     </section>
 
     <footer>Built as a lightweight portfolio site for sharing Timothy Chen's professional materials.</footer>
   </main>
+  <script type="module">
+    import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs";
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs";
+
+    const pdfUrl = "./assets/Timothy-Chen-Portfolio.pdf";
+    const viewerFrame = document.getElementById("pdf-renderer");
+    const statusNode = document.getElementById("pdf-status");
+    const pagesNode = document.getElementById("pdf-pages");
+    const fallbackNode = document.getElementById("pdf-fallback");
+    const canvasDensity = Math.min(window.devicePixelRatio || 1, 2);
+
+    let pdfDocument = null;
+    let renderVersion = 0;
+    let lastWidth = 0;
+    let resizeTimer = 0;
+
+    function setStatus(message, isError = false) {
+      statusNode.hidden = false;
+      statusNode.textContent = message;
+      statusNode.dataset.state = isError ? "error" : "info";
+    }
+
+    function showFallback(message) {
+      setStatus(message, true);
+      fallbackNode.hidden = false;
+    }
+
+    async function loadPortfolio() {
+      if (pdfDocument) {
+        return pdfDocument;
+      }
+
+      const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
+      pdfDocument = await loadingTask.promise;
+      return pdfDocument;
+    }
+
+    function getRenderWidth() {
+      const frameWidth = viewerFrame.clientWidth || 960;
+      return Math.max(Math.min(frameWidth - 32, 1040), 260);
+    }
+
+    async function renderPortfolio() {
+      const activeVersion = ++renderVersion;
+      fallbackNode.hidden = true;
+      pagesNode.replaceChildren();
+      setStatus("Loading full portfolio...");
+
+      const portfolio = await loadPortfolio();
+      const targetWidth = getRenderWidth();
+      setStatus(`Rendering all ${portfolio.numPages} pages...`);
+
+      for (let pageNumber = 1; pageNumber <= portfolio.numPages; pageNumber += 1) {
+        if (activeVersion !== renderVersion) {
+          return;
+        }
+
+        const page = await portfolio.getPage(pageNumber);
+        const baseViewport = page.getViewport({ scale: 1 });
+        const scale = targetWidth / baseViewport.width;
+        const viewport = page.getViewport({ scale });
+
+        const pageCard = document.createElement("article");
+        pageCard.className = "pdf-page";
+
+        const label = document.createElement("div");
+        label.className = "pdf-page-label";
+        label.textContent = `Page ${pageNumber}`;
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d", { alpha: false });
+
+        if (!context) {
+          throw new Error("Canvas rendering is unavailable.");
+        }
+
+        canvas.width = Math.floor(viewport.width * canvasDensity);
+        canvas.height = Math.floor(viewport.height * canvasDensity);
+        canvas.style.width = `${viewport.width}px`;
+        canvas.style.height = `${viewport.height}px`;
+        context.scale(canvasDensity, canvasDensity);
+
+        pageCard.append(label, canvas);
+        pagesNode.append(pageCard);
+
+        await page.render({
+          canvasContext: context,
+          viewport,
+        }).promise;
+      }
+
+      if (activeVersion !== renderVersion) {
+        return;
+      }
+
+      setStatus(`Showing all ${portfolio.numPages} pages inline.`);
+    }
+
+    function scheduleResizeRender() {
+      const currentWidth = getRenderWidth();
+      if (Math.abs(currentWidth - lastWidth) < 40) {
+        return;
+      }
+
+      lastWidth = currentWidth;
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        renderPortfolio().catch((error) => {
+          console.error(error);
+          showFallback("Couldn't render the inline preview. Use the PDF link above.");
+        });
+      }, 180);
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      scheduleResizeRender();
+    });
+
+    lastWidth = getRenderWidth();
+    resizeObserver.observe(viewerFrame);
+
+    renderPortfolio().catch((error) => {
+      console.error(error);
+      showFallback("Couldn't render the inline preview. Use the PDF link above.");
+    });
+  </script>
 </body>
 </html>
