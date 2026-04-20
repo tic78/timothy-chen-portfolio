@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Timothy Chen | Portfolio</title>
+  <meta
+    name="description"
+    content="Professional portfolio for Timothy Chen with an embedded PDF for quick review and download."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    :root {
+      --bg: #f6f0e6;
+      --bg-accent: #e2d2bb;
+      --surface: rgba(255, 252, 247, 0.78);
+      --ink: #17261d;
+      --muted: #4d5a52;
+      --accent: #bc5a36;
+      --accent-strong: #1e5a43;
+      --line: rgba(23, 38, 29, 0.12);
+      --shadow: 0 24px 70px rgba(41, 30, 15, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(188, 90, 54, 0.18), transparent 34%),
+        radial-gradient(circle at top right, rgba(30, 90, 67, 0.16), transparent 28%),
+        linear-gradient(180deg, var(--bg) 0%, #efe4d3 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.14;
+      background-image:
+        linear-gradient(rgba(23, 38, 29, 0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 38, 29, 0.18) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: linear-gradient(180deg, black, rgba(0, 0, 0, 0.25));
+    }
+
+    main {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+      gap: 1.5rem;
+      align-items: end;
+      padding: 2.75rem;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: var(--surface);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-strong);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(3.1rem, 8vw, 6rem);
+      line-height: 0.94;
+      letter-spacing: -0.04em;
+    }
+
+    .lead {
+      max-width: 58ch;
+      margin: 1.25rem 0 0;
+      font-size: 1.08rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-top: 1.75rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0.85rem 1.25rem;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff8f3;
+      text-decoration: none;
+      font-weight: 700;
+      transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        background 160ms ease,
+        border-color 160ms ease;
+      box-shadow: 0 14px 28px rgba(188, 90, 54, 0.22);
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(188, 90, 54, 0.28);
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, 0.4);
+      color: var(--ink);
+      border-color: var(--line);
+      box-shadow: none;
+    }
+
+    .button.secondary:hover,
+    .button.secondary:focus-visible {
+      border-color: rgba(23, 38, 29, 0.24);
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: 0 12px 24px rgba(23, 38, 29, 0.08);
+    }
+
+    .info-grid {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .info-card {
+      padding: 1rem 1.1rem;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(23, 38, 29, 0.94), rgba(30, 90, 67, 0.88));
+      color: #f8f2ea;
+      box-shadow: 0 14px 32px rgba(23, 38, 29, 0.18);
+    }
+
+    .info-card span {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(248, 242, 234, 0.72);
+    }
+
+    .info-card strong {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-size: 1.15rem;
+      line-height: 1.2;
+    }
+
+    .info-card p {
+      margin: 0;
+      line-height: 1.55;
+      color: rgba(248, 242, 234, 0.88);
+    }
+
+    .viewer-shell {
+      margin-top: 1.4rem;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: var(--shadow);
+    }
+
+    .viewer-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.6rem 0.5rem 1rem;
+    }
+
+    h2 {
+      margin: 0.2rem 0 0;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.05;
+    }
+
+    .viewer-note {
+      max-width: 34ch;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .viewer {
+      width: 100%;
+      min-height: 78vh;
+      border: 0;
+      border-radius: 22px;
+      background: #ffffff;
+    }
+
+    .fallback {
+      padding: 2rem;
+      line-height: 1.7;
+    }
+
+    footer {
+      padding: 1.25rem 0 0.4rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 920px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 2rem;
+      }
+
+      .viewer-head {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      .viewer {
+        min-height: 68vh;
+      }
+    }
+
+    @media (max-width: 600px) {
+      main {
+        width: min(100% - 1rem, 1180px);
+        padding-top: 16px;
+      }
+
+      .hero,
+      .viewer-shell {
+        border-radius: 24px;
+      }
+
+      .hero {
+        padding: 1.4rem;
+      }
+
+      .viewer {
+        min-height: 56vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-labelledby="site-title">
+      <div>
+        <p class="eyebrow">Professional Portfolio</p>
+        <h1 id="site-title">Timothy<br>Chen</h1>
+        <p class="lead">
+          A focused portfolio page built to make Timothy Chen's professional background easy to
+          review. The complete PDF is embedded below for quick scanning, with direct open and
+          download options for recruiters, hiring managers, and collaborators.
+        </p>
+        <div class="actions">
+          <a class="button" href="#portfolio">View Portfolio</a>
+          <a
+            class="button secondary"
+            href="./assets/Timothy-Chen-Portfolio.pdf"
+            target="_blank"
+            rel="noreferrer"
+          >Open PDF</a>
+          <a class="button secondary" href="./assets/Timothy-Chen-Portfolio.pdf" download>Download PDF</a>
+        </div>
+      </div>
+
+      <div class="info-grid" aria-label="Portfolio details">
+        <article class="info-card">
+          <span>Format</span>
+          <strong>Embedded PDF Experience</strong>
+          <p>The portfolio is readable directly on the page while still being easy to open in a new tab.</p>
+        </article>
+        <article class="info-card">
+          <span>Purpose</span>
+          <strong>Career-Focused Presentation</strong>
+          <p>A cleaner, more shareable public link than sending a standalone attachment by itself.</p>
+        </article>
+        <article class="info-card">
+          <span>Hosting</span>
+          <strong>GitHub Pages Ready</strong>
+          <p>Static, fast, and simple to maintain as your experience and materials evolve over time.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="viewer-shell" id="portfolio" aria-labelledby="portfolio-title">
+      <div class="viewer-head">
+        <div>
+          <p class="eyebrow">Featured Document</p>
+          <h2 id="portfolio-title">Timothy-Chen-Portfolio.pdf</h2>
+        </div>
+        <p class="viewer-note">
+          If the embedded preview is unavailable in your browser, use the Open PDF or Download PDF buttons above.
+        </p>
+      </div>
+
+      <object
+        class="viewer"
+        data="./assets/Timothy-Chen-Portfolio.pdf#view=FitH"
+        type="application/pdf"
+        aria-label="Timothy Chen portfolio PDF"
+      >
+        <div class="fallback">
+          <p>The PDF preview is not available in this browser.</p>
+          <p>
+            <a href="./assets/Timothy-Chen-Portfolio.pdf" target="_blank" rel="noreferrer">
+              Open the portfolio PDF in a new tab
+            </a>
+          </p>
+        </div>
+      </object>
+    </section>
+
+    <footer>Built as a lightweight portfolio site for sharing Timothy Chen's professional materials.</footer>
+  </main>
+</body>
+</html>
